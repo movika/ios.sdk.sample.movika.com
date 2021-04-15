@@ -3,10 +3,10 @@ import MovikaSDK
 
 class ViewController: UIViewController {
   
-  @IBOutlet weak var activatyIndicator: UIActivityIndicatorView!{
+  @IBOutlet weak var activityIndicator: UIActivityIndicatorView!{
     didSet {
-      activatyIndicator.isHidden = false
-      activatyIndicator.startAnimating()
+      activityIndicator.isHidden = false
+      activityIndicator.startAnimating()
     }
   }
   
@@ -24,7 +24,6 @@ class ViewController: UIViewController {
   
   private var manifest: GameManifest?
   private var defaultPlayerRepository = DefaultPlayerRepository()
-  private let manifestUrl = "SET_MOVIE_URL"
   private let movieId = "100"
   
   override func viewDidLoad() {
@@ -33,7 +32,7 @@ class ViewController: UIViewController {
     
     downloader.load(movie: Movie(id: movieId, manifestUrl: manifestUrl)) {[weak self] manifest, error  in
       guard let self = self else { return }
-      self.activatyIndicator.isHidden = true
+      self.activityIndicator.isHidden = true
       self.stackView.isHidden = false
       self.resumeBtn.isHidden = !self.defaultPlayerRepository.isGameSaved(movieId: self.movieId)
       if let error = error {
