@@ -22,19 +22,16 @@ class ViewController: UIViewController {
     }
   }
   
-  private var manifest: GameManifest?
-  private var defaultPlayerRepository = DefaultPlayerRepository()
-  private let movieId = "100"
-  
+  private var manifest: MKManifest? = nil
+  private let testManifestURL = URL(string: "https://asazin-cache.cdnvideo.ru/asazin/test/manifest3pro/manifest-v3.json")!
+  private let manifestAsset = MKManifestAsset()
+
   override func viewDidLoad() {
     super.viewDidLoad()
-    let downloader = DefaultGameManifestDownloader()
-    
-    downloader.load(movie: Movie(id: movieId, manifestUrl: manifestUrl)) {[weak self] manifest, error  in
+    manifestAsset.loader.load(requestURL: testManifestURL, manifestVersion: "3.0.0") { [weak self] manifest, error in
       guard let self = self else { return }
       self.activityIndicator.isHidden = true
       self.stackView.isHidden = false
-      self.resumeBtn.isHidden = !self.defaultPlayerRepository.isGameSaved(movieId: self.movieId)
       if let error = error {
         self.show(message: error.localizedDescription)
       } else {
@@ -43,40 +40,19 @@ class ViewController: UIViewController {
     }
   }
   
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-    self.resumeBtn.isHidden = !self.defaultPlayerRepository.isGameSaved(movieId: self.movieId)
-  }
-  
-  private func show(message: String)  {
-    let alert = UIAlertController(title: "Alert", message: message, preferredStyle: UIAlertController.Style.alert)
-    alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-    self.present(alert, animated: true, completion: nil)
-  }
-  
-  
   private func showPlayer(starFormGamePoint: Bool) {
-    guard  let manifest = manifest else {
-      show(message: "Manifest not found")
+    guard let manifest = manifest else {
+      show(message: "Manifest not initialized")
       return
     }
-    
+
     let vc = PlayerViewController()
     vc.modalPresentationStyle = .fullScreen
     self.show(vc, sender: nil)
-    let config = PlayerConfiguration(startFromSavePoint: starFormGamePoint,
-                                     loopMode: false,
-                                     showSaveIndicator: true,
-                                     isRewindEnable: true,
-                                     isShowTimeline: false,
-                                     isDisableImmediately: false)
-    
-
     vc.isShowDebugView = true
-    vc.mkplayer.setup(manifest: manifest, config: config)
+    vc.setManifestAsset(MKReadyManifestAsset(manifest: manifest))
     vc.mkplayer.play()
   }
-  
   
   @IBAction func start(_ sender: Any) {
     showPlayer(starFormGamePoint: false)
@@ -84,5 +60,11 @@ class ViewController: UIViewController {
   
   @IBAction func resume(_ sender: Any) {
     showPlayer(starFormGamePoint: true)
+  }
+  
+  private func show(message: String)  {
+    let alert = UIAlertController(title: "Alert", message: message, preferredStyle: UIAlertController.Style.alert)
+    alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+    self.present(alert, animated: true, completion: nil)
   }
 }
