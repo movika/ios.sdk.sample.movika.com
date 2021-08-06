@@ -18,9 +18,10 @@ class PlayerViewController: MovikaPlayerViewController {
     self.dismiss(animated: true, completion:nil)
   }
   
-  override func movieDidEnd() {
+  override func mkplayer(_ player: MKPlayer, didEndPlaying manifest: MKManifest) {
     self.dismiss(animated: true, completion:nil)
   }
+  
 }
 
 
